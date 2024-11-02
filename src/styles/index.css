@@ -1,51 +1,70 @@
-.tabs-borders {
-    margin: auto;
-    width:50%;
-    border-top:1px solid  lightgray;
-    border-left:1px solid lightgray;
-    border-right:1px solid lightgray;
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
-    
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-p { 
-    padding-top:10px;
-    padding-bottom:5px;
-    margin: auto;
-    width:50%;
-    /* border-top:1px solid  lightgray; */
-    border-left:1px solid lightgray;
-    border-right:1px solid lightgray;
-    border-bottom:1px solid lightgrey;
-    padding-left:10px;
+.todos-title {
+    font-size: 80px;
+    color: #b10202;
+    margin-bottom: 30px;
+    font-weight: 300;
+    text-align: center;
 }
 
-input {
-    padding-top:10px;
-    border-style:none;
-    border:none;
-    font-size:22px;
+.home-container {
+    background-color: #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    max-width: 500px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid transparent; 
 }
 
-input:focus {
-    outline: none;
-    box-shadow: none;
+.items-left {
+    color: #999;
+    font-size: 16px;
+    text-align: left;
+    padding: 10px 0;
+    border-top: 1px solid #ededed;
+    margin-top: 20px;
+    background-color: #fff;
 }
 
-ul {
-    width:50%; 
+.remove-icon {
+    cursor: pointer;
+    color: #ff0000;
+    font-size: 20px;
+    margin-left: 15px;
+    transition: color 0.3s ease, transform 0.3s ease; 
 }
 
-li {
-    border-bottom:1px solid lightgray;
-	font-size:21px;
-	padding-left:0px;
+.remove-icon:hover {
+    color: #965757;
+    transform: scale(1.1); 
 }
 
-.small-div {
-    height:5px;
-	margin:auto;
-	border-left:1px solid lightgrey;
-	border-right:1px solid lightgrey;
-	border-bottom:1px solid lightgrey;
+button {
+    background-color: #ff4c4c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #e03e3e;
+    transform: scale(1.05); 
 }
