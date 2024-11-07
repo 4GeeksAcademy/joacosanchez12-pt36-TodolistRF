@@ -1,165 +1,104 @@
-import React, { useState, useEffect } from 'react';
-import TodoInput from './TodoInput';
-import TodoList from './TodoList';
-
+import React, { useState, useEffect } from "react";
 const Home = () => {
-  const [todos, setTodos] = useState([]);  
-  const [newTodo, setNewTodo] = useState("");  
-
-  const apiUrl = "https://playground.4geeks.com/todo/users/joaquinsanchez12"; // URL de la operacion API
-  const apiTodos = "https://playground.4geeks.com/todo/todos/joaquinsanchez12"; // URL de la operacion API
-  const apiDelete = "https://playground.4geeks.com/todo/users/joaquinsanchez12"; // URL para eliminar tareas
-
-  // Verifica si el usuario existe
-  const checkUserExistence = () => {
-    fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then((resp) => resp.json())
-    .then((data) => {
-      if (!data.todos) {
-        console.log("NO EXISTE EL USUARIO");
-        createUser(); 
-      } else {
-        setTodos(data.todos); // Si existe, cargamos las tareas
-      }
-    })
-    .catch((error) => console.error("Error al verificar el usuario:", error));
-  };
-
-  // Crea un usuario si no existe
-  const createUser = () => {
-    fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ username: "joaquinsanchez12" }) // Datos de ejemplo, ajústalos si es necesario
-    })
-    .then((resp) => resp.json())
-    .then(() => {
-      console.log("Usuario creado exitosamente");
-      tareajoaquinsanchez12(); // Llamamos a la función para cargar las tareas del usuario
-    })
-    .catch((error) => console.error("Error al crear el usuario:", error));
-  };
-
-  // Cargar las tareas del usuario
-  const tareajoaquinsanchez12 = () => {
-    fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then((resp) => resp.json())
-    .then((data) => {
-      console.log(data);
-      if (Array.isArray(data.todos)) {
-        setTodos(data.todos);
-      } else {
-        setTodos([]);
-      }
-    })
-    .catch((error) => console.error("Error al cargar las tareas:", error));
-  };
-
-  useEffect(() => {
-    checkUserExistence(); // Verificamos si el usuario existe al iniciar
-  }, []);
-
-  // Crear tarea en el servidor
-  const createTaskOnServer = (newTodo) => {
-    fetch(apiTodos, {
-      method: "POST",
-      body: JSON.stringify(newTodo),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then((resp) => {
-      if (!resp.ok) {
-        throw new Error("Error al crear la tarea");
-      }
-      return resp.json();
-    })
-    .then(() => {
-      tareajoaquinsanchez12(); // Recargamos las tareas
-    })
-    .catch((error) => console.error("Error al crear la tarea:", error));
-  };
-
-  // Función que maneja la tecla ENTER para agregar tareas
-  const handleKeyDown = (e) => {
-    if (e.code === "Enter" && newTodo.trim() !== "") {
-      const newTask = { label: newTodo, done: false };
-      createTaskOnServer(newTask);  
-      setNewTodo("");  
-    }
-  };
-
-  // Eliminar tarea
-  const removeTask = (id) => {
-    fetch(`${apiDelete}/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then((resp) => {
-      if (resp.ok) {
-        tareajoaquinsanchez12(); // Recargamos las tareas después de eliminar
-      }
-    })
-    .catch((error) => console.error("Error al eliminar la tarea:", error));
-  };
-
-  // Eliminar todas las tareas
-  const clearAllTasks = () => {
-    if (todos.length > 0) {
-      fetch(apiDelete, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json"
-        },
-      })
-      .then((resp) => {
-        if (resp.ok) {
-          setTodos([]); // Limpiamos las tareas localmente
+    const [todos, setTodos] = useState([]);
+    const [newTodo, setNewTodo] = useState("");
+    const user_name = "joaquinsanchez12";
+    const fetchUsers = async () => {
+        const response = await fetch(`https://playground.4geeks.com/todo/users/${user_name}`);
+        if (response.ok) {
+            const data = await response.json();
+            setTodos(data.todos || []);
+        } else {
+            console.error("Error al cargar las tareas del usuario.");
         }
-      })
-      .catch((error) => console.error("Error al eliminar todas las tareas:", error));
-    }
-  };
-
-  return (
-    <>
-      <div className="text-center mt-5">
-        <h1 className="todos-title">TodoList</h1>
-      </div>
-
-      {/* Uso de TodoInput como un componente */}
-      <div className="home-container">
-        <TodoInput
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)} 
-          onKeyDown={handleKeyDown}  
-        />
-
-        {/* Lista de tareas */}
-        <TodoList tasks={todos} removeTask={removeTask} />
-
-        <button className="btn btn-danger mt-3" onClick={clearAllTasks}>
-          Clear All Tasks
-        </button>
-
-        <p className="items-left">{todos.length} item{todos.length !== 1 && 's'} left</p>
-      </div>
-    </>
-  );
+    };
+    const syncTodosWithServer = async (todoText) => {
+        const response = await fetch(`https://playground.4geeks.com/todo/todos/${user_name}`, {
+            method: "POST",
+            body: JSON.stringify({
+                "label": todoText,
+                "is_done": false
+            }),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data;
+        } else {
+            console.error("Error al sincronizar la tarea.");
+            return null;
+        }
+    };
+    const createTodo = async () => {
+        if (newTodo.trim() !== "") {
+            const newTask = await syncTodosWithServer(newTodo);
+            if (newTask) {
+                const updatedTodos = [...todos, newTask];
+                setTodos(updatedTodos);
+                setNewTodo("");
+                console.log("Tarea creada correctamente.");
+            }
+        }
+    };
+    const deleteTodo = async (todoId) => {
+        const response = await fetch(`https://playground.4geeks.com/todo/todos/${todoId}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (response.ok) {
+            const updatedTodos = todos.filter(todo => todo.id !== todoId);
+            setTodos(updatedTodos);
+            console.log("Tarea eliminada correctamente.");
+        } else {
+            console.error("Error al eliminar la tarea.");
+        }
+    };
+    const deleteAllTodos = async () => {
+        setTodos([]);
+        await fetch(`https://playground.4geeks.com/todo/users/${user_name}`, {
+            method: "DELETE",
+            body: JSON.stringify([]),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+    };
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+    return (
+        <div className="todo-app">
+            <h1 className="title">TodoList</h1>
+            <input
+                type="text"
+                placeholder="Añadir una tarea..."
+                value={newTodo}
+                onChange={(e) => setNewTodo(e.target.value)}
+                onKeyPress={(e) => {
+                    if (e.key === "Enter") createTodo();
+                }}
+            />
+            <ul>
+                {todos.length > 0 ? (
+                    todos.map((todo) => (
+                        <li key={todo.id}>
+                            {todo.label} {/* Mostrar la tarea usando 'label' que es la propiedad correcta */}
+                            <span className="remove-btn" onClick={() => deleteTodo(todo.id)}>X</span> {/* Ícono de eliminación */}
+                        </li>
+                    ))
+                ) : (
+                    <li>No hay tareas, añade tareas</li>
+                )}
+            </ul>
+            <button className="clear-btn" onClick={deleteAllTodos}>Eliminar todas las tareas</button>
+            <div className="footer">
+                <p>{todos.length} tarea{todos.length !== 1 ? "s" : ""} disponible{todos.length !== 1 ? "s" : ""}</p>
+            </div>
+        </div>
+    );
 };
-
 export default Home;
